@@ -9,10 +9,13 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kr.co.icia.mapline.util.KakaoApiUtil.KakaoDirections.Route.Section.Road;
+import kr.co.icia.mapline.util.kakao.Document;
+import kr.co.icia.mapline.util.kakao.KakaoAddress;
+import kr.co.icia.mapline.util.kakao.KakaoDirections;
+import kr.co.icia.mapline.util.kakao.KakaoDirections.Route.Section.Road;
+
 
 public class KakaoApiUtil {
 	private static final String REST_API_KEY = "3963d4acc3e66c56c54f1c5090486820";
@@ -71,81 +74,19 @@ public class KakaoApiUtil {
 				.GET()//
 				.build();
 
-
 		System.out.println(request.headers());
-		
+
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 		String responseBody = response.body();
 		System.out.println(responseBody);
 
 		KakaoAddress kakaoAddress = new ObjectMapper().readValue(responseBody, KakaoAddress.class);
-		List<KakaoAddress.Document> documents = kakaoAddress.getDocuments();
+		List<Document> documents = kakaoAddress.getDocuments();
 		if (documents.isEmpty()) {
 			return null;
 		}
-		KakaoAddress.Document document = documents.get(0);
+		Document document = documents.get(0);
 		return new Point(document.getX(), document.getY());
-	}
-
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	public static class KakaoDirections {
-		private List<Route> routes;
-
-		public List<Route> getRoutes() {
-			return routes;
-		}
-
-		@JsonIgnoreProperties(ignoreUnknown = true)
-		public static class Route {
-			private List<Section> sections;
-
-			public List<Section> getSections() {
-				return sections;
-			}
-
-			@JsonIgnoreProperties(ignoreUnknown = true)
-			public static class Section {
-				private List<Road> roads;
-
-				public List<Road> getRoads() {
-					return roads;
-				}
-
-				@JsonIgnoreProperties(ignoreUnknown = true)
-				public static class Road {
-					private List<Double> vertexes;
-
-					public List<Double> getVertexes() {
-						return vertexes;
-					}
-
-				}
-
-			}
-		}
-	}
-
-	@JsonIgnoreProperties(ignoreUnknown = true)
-	private static class KakaoAddress {
-		private List<Document> documents;
-
-		public List<Document> getDocuments() {
-			return documents;
-		}
-
-		@JsonIgnoreProperties(ignoreUnknown = true)
-		public static class Document {
-			private Double x;
-			private Double y;
-
-			public Double getX() {
-				return x;
-			}
-
-			public Double getY() {
-				return y;
-			}
-		}
 	}
 
 	public static class Point {
