@@ -94,12 +94,14 @@
 		}
 		
 		
+		const IMG = new Image();
+		IMG.src = '/racing-car-303766_640.png';
+		IMG.style.width = "70px";
 		function moveVehicle(point, deg) {
-			var content = '<img src="/racing-car-303766_640.png" style="width:70px;transform:rotate('+(deg-90)+'deg)">';
-			
+			IMG.style.transform = 'rotate('+(deg-90)+'deg)';
 			var position = new kakao.maps.LatLng(point.y, point.x);
 			customOverlay.setPosition(position);
-			customOverlay.setContent(content);
+			customOverlay.setContent(IMG);
 			customOverlay.setMap(map);
 		}
 		
