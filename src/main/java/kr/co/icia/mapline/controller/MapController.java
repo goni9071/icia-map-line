@@ -17,6 +17,30 @@ import kr.co.icia.mapline.util.KakaoApiUtil.Point;
 public class MapController {
 
 	/**
+	 * 키워드를 통해 마커 표시
+	 * 
+	 * @param x       중심지 x좌표
+	 * @param y       중심지 y좌표
+	 * @param keyword 검색 키워드
+	 * @param model   html파일에 값을 전달해주는 객체
+	 * @return html 파일위치
+	 * 
+	 */
+	@GetMapping("/map/keyword") // url : /map/keyword
+	public String getMapKeyword(//
+			@RequestParam(required = false) Double x, //
+			@RequestParam(required = false) Double y, //
+			@RequestParam(required = false) String keyword, //
+			Model model) throws IOException, InterruptedException {
+		if (x != null && y != null && keyword != null) {
+			List<Point> pointList = KakaoApiUtil.getPointByKeyword(keyword, new Point(x, y));
+			String pointListJson = new ObjectMapper().writer().writeValueAsString(pointList);
+			model.addAttribute("pointList", pointListJson);
+		}
+		return "map/keyword";
+	}
+
+	/**
 	 * 자동차 이동 경로 그리기
 	 * 
 	 * @param fromAddress 출발지 주소정보

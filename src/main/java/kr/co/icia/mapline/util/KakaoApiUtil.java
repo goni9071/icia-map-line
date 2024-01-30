@@ -16,9 +16,49 @@ import kr.co.icia.mapline.util.kakao.KakaoAddress;
 import kr.co.icia.mapline.util.kakao.KakaoDirections;
 import kr.co.icia.mapline.util.kakao.KakaoDirections.Route.Section.Road;
 
-
 public class KakaoApiUtil {
 	private static final String REST_API_KEY = "3963d4acc3e66c56c54f1c5090486820";
+
+	/**
+	 * 키워드 장소 검색
+	 * 
+	 * @param address 주소
+	 * @return 좌표
+	 */
+	public static List<Point> getPointByKeyword(String keyword, Point center) throws IOException, InterruptedException {
+		HttpClient client = HttpClient.newHttpClient();
+		String url = "https://dapi.kakao.com/v2/local/search/keyword.json";
+		url += "?query=" + URLEncoder.encode(keyword, "UTF-8");
+		url += "&category_group_code=PM9";
+		url += "&x=" + center.getX();
+		url += "&y=" + center.getY();
+		HttpRequest request = HttpRequest.newBuilder()//
+				.header("Authorization", "KakaoAK " + REST_API_KEY)//
+				.uri(URI.create(url))//
+				.GET()//
+				.build();
+
+		System.out.println(request.headers());
+
+		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+		String responseBody = response.body();
+		System.out.println(responseBody);
+
+		KakaoAddress kakaoAddress = new ObjectMapper().readValue(responseBody, KakaoAddress.class);
+		List<Document> documents = kakaoAddress.getDocuments();
+		if (documents.isEmpty()) {
+			return null;
+		}
+
+		List<Point> pointList = new ArrayList<>();
+		for (Document document : documents) {
+			Point point = new Point(document.getX(), document.getY());
+			point.setName(document.getPlaceName());
+			point.setPhone(document.getPhone());
+			pointList.add(point);
+		}
+		return pointList;
+	}
 
 	/**
 	 * 자동차 길찾기
@@ -92,6 +132,8 @@ public class KakaoApiUtil {
 	public static class Point {
 		private Double x;
 		private Double y;
+		private String name;
+		private String phone;
 
 		public Point(Double x, Double y) {
 			this.x = x;
@@ -104,6 +146,22 @@ public class KakaoApiUtil {
 
 		public Double getY() {
 			return y;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getPhone() {
+			return phone;
+		}
+
+		public void setPhone(String phone) {
+			this.phone = phone;
 		}
 
 	}

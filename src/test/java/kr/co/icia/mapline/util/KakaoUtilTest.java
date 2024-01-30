@@ -10,6 +10,21 @@ import kr.co.icia.mapline.util.KakaoApiUtil.Point;
 public class KakaoUtilTest {
 
 	@Test
+	public void getPointByKeywordTest() throws IOException, InterruptedException {
+		Point center = new Point(126.675113024566, 37.4388938204128);// 인천일보아카데미
+		List<Point> pointByKeyword = KakaoApiUtil.getPointByKeyword("약국", center);
+		for (Point point : pointByKeyword) {
+			System.out.println(//
+					"x:" + point.getX() //
+							+ ",y:" + point.getY()//
+							+ ",name:" + point.getName()//
+							+ ",phone:" + point.getPhone()//
+			);
+		}
+
+	}
+
+	@Test
 	public void getPointByAddressTest() throws IOException, InterruptedException {
 		Point point = KakaoApiUtil.getPointByAddress("인천광역시 미추홀구 매소홀로488번길 6-32 태승빌딩 5층");
 		System.out.println("x:" + point.getX() + ",y:" + point.getY());
