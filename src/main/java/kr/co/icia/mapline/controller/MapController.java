@@ -1,6 +1,7 @@
 package kr.co.icia.mapline.controller;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,38 @@ import kr.co.icia.mapline.util.KakaoApiUtil.Point;
 
 @Controller
 public class MapController {
+	/**
+	 * 키워드를 통해 마커 표시하고 선으로 잇기
+	 * 
+	 * @param x       중심지 x좌표
+	 * @param y       중심지 y좌표
+	 * @param keyword 검색 키워드
+	 * @param model   html파일에 값을 전달해주는 객체
+	 * @return html 파일위치
+	 * 
+	 */
+	@GetMapping("/map/keyword/path") // url : /map/keyword/path
+	public String getMapKeywordPath(//
+			@RequestParam(required = false) Double x, //
+			@RequestParam(required = false) Double y, //
+			@RequestParam(required = false) String keyword, //
+			Model model) throws IOException, InterruptedException {
+		if (x != null && y != null && keyword != null) {
+			List<Point> keywordPointList = KakaoApiUtil.getPointByKeyword(keyword, new Point(x, y));
+			String keywordPointListJson = new ObjectMapper().writer().writeValueAsString(keywordPointList);
+			model.addAttribute("keywordPointList", keywordPointListJson);
+
+			List<Point> pathPointList = new ArrayList<>();
+			for (int i = 1; i < keywordPointList.size(); i++) {
+				Point prevPoint = keywordPointList.get(i - 1);
+				Point nextPoint = keywordPointList.get(i);
+				pathPointList.addAll(KakaoApiUtil.getVehiclePaths(prevPoint, nextPoint));
+			}
+			String pathPointListJson = new ObjectMapper().writer().writeValueAsString(pathPointList);
+			model.addAttribute("pathPointList", pathPointListJson);
+		}
+		return "map/keyword-path";
+	}
 
 	/**
 	 * 키워드를 통해 마커 표시
